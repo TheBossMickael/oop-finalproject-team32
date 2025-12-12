@@ -23,10 +23,10 @@ def run(episodes, is_training=True, render=False):
         q = pickle.load(f)
         f.close()
 
-    learning_rate_a = 0.9 # alpha or learning rate
-    discount_factor_g = 0.9 # gamma or discount rate. Near 0: more weight/reward placed on immediate state. Near 1: more on future state.
+    learning_rate_a = 0.05 # alpha or learning rate
+    discount_factor_g = 0.99 # gamma or discount rate. Near 0: more weight/reward placed on immediate state. Near 1: more on future state.
     epsilon = 1         # 1 = 100% random actions
-    epsilon_decay_rate = 0.0001        # epsilon decay rate. 1/0.0001 = 10,000
+    epsilon_decay_rate = 0.00005   # epsilon decay rate. 1/0.0001 = 10,000
     rng = np.random.default_rng()   # random number generator
 
     rewards_per_episode = np.zeros(episodes)
@@ -37,21 +37,37 @@ def run(episodes, is_training=True, render=False):
         truncated = False       # True when actions > 200
 
         while(not terminated and not truncated):
+            # Epsilon-greedy policy
             if is_training and rng.random() < epsilon:
-                action = env.action_space.sample() # actions: 0=left,1=down,2=right,3=up
+                action = env.action_space.sample()  # actions: 0=left,1=down,2=right,3=up
             else:
-                action = np.argmax(q[state,:])
+                action = np.argmax(q[state, :])
 
-            new_state,reward,terminated,truncated,_ = env.step(action)
+            new_state, reward, terminated, truncated, _ = env.step(action)
 
             if is_training:
-                q[state,action] = q[state,action] + learning_rate_a * (
-                    reward + discount_factor_g * np.max(q[new_state,:]) - q[state,action]
+                # Reward shaping for learning (does not change success definition)
+                if terminated and reward == 1.0:
+                    # Reached the goal
+                    shaped_reward = 1.0
+                elif terminated and reward == 0.0:
+                    # Fell into a hole
+                    shaped_reward = -1.0
+                elif truncated:
+                    # Episode ended due to step limit
+                    shaped_reward = -0.1
+                else:
+                    # Small negative reward per step to encourage faster paths
+                    shaped_reward = -0.001
+
+                # Q-learning update with shaped reward
+                q[state, action] = q[state, action] + learning_rate_a * (
+                    shaped_reward + discount_factor_g * np.max(q[new_state, :]) - q[state, action]
                 )
 
             state = new_state
 
-        epsilon = max(epsilon - epsilon_decay_rate, 0)
+        epsilon = max(epsilon - epsilon_decay_rate, 0.01)
 
         if(epsilon==0):
             learning_rate_a = 0.0001
@@ -76,6 +92,9 @@ def run(episodes, is_training=True, render=False):
         f.close()
 
 if __name__ == '__main__':
-    # run(15000, is_training=True, render=False)
+    # 1) Training (do not change the sample number of episodes)
+    run(15000, is_training=True, render=False)
 
-    run(10, is_training=False, render=True)
+    # 2) Evaluation (fixed evaluation run, no rendering)
+    run(1000, is_training=False, render=False)
+
