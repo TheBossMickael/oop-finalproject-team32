@@ -195,6 +195,10 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
 
             self.obstacles.append(pos)
 
+        # ---- IMPORTANT: send advanced info to the renderer ----
+        self.warehouse_robot.obstacles = self.obstacles
+        self.warehouse_robot.battery = self.battery
+
         obs = self._get_obs()
         info = {}
 
@@ -233,6 +237,10 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
             reward = 1
             terminated = True
 
+        # ---- IMPORTANT: update renderer info every step ----
+        self.warehouse_robot.obstacles = self.obstacles
+        self.warehouse_robot.battery = self.battery
+
         obs = self._get_obs()
         info = {}
 
@@ -258,6 +266,8 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
 # Unit test
 # --------------------------------------------------
 if __name__ == "__main__":
+    # Change this line to test the advanced environment visually:
+    # env = gym.make("warehouse-robot-advanced-v1", render_mode="human")
     env = gym.make("warehouse-robot-v0", render_mode="human")
 
     obs = env.reset()[0]
