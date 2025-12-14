@@ -137,3 +137,8 @@ This part demonstrates:
 * This project is for academic use only
 
 ---
+## Contribution
+
+- **Mickael Osorio**: Designed and implemented the core architecture, including the `Agent`, `Trainer`, and an interactive `Main`. He also completed **Part 1 and Part 2** of the project.
+- **Jean Jedidia Leong**: Developed the advanced **Environment layer**, including game modes, obstacle handling and battery.
+
