@@ -49,22 +49,22 @@ class BaseAgent(ABC):
         Parameters
         ----------
         observation :
-            The current state/observation returned by env.reset() or env.step().
+            The current observation returned by env.reset() or env.step().
 
         Returns
         -------
         int
-            The action to take (compatible with the env's action space).
+            The action to take (compatible with the environment's action space).
         """
         raise NotImplementedError("select_action() must be implemented by subclasses.")
 
     def reset(self) -> None:
         """
-        Optional hook for agents that need to reset their internal state
+        Optional hook for agents that need to reset internal state
         at the beginning of a new episode.
 
         RandomAgent and GreedyAgent do not need it, so the default
-        implementation does nothing. Subclasses can override it.
+        implementation does nothing.
         """
         pass
 
@@ -78,7 +78,9 @@ class RandomAgent(BaseAgent):
     """
 
     def select_action(self, observation) -> int:
-        # Completely ignore the observation and sample a random action.
+        """
+        Select a random action, ignoring the observation.
+        """
         return self.action_space.sample()
 
 
@@ -86,47 +88,48 @@ class GreedyAgent(BaseAgent):
     """
     Simple heuristic agent for the WarehouseRobot environment.
 
-    Assumes the observation is a 1D array or list of length 4:
-        [robot_row, robot_col, target_row, target_col]
+    Assumes the observation is a 1D array or list with at least 4 values:
+        [robot_row, robot_col, target_row, target_col, ...]
 
     The agent always tries to move closer to the target:
-    - If robot is above the target  -> move DOWN
-    - If robot is below the target  -> move UP
-    - Else if robot is left of target  -> move RIGHT
-    - Else if robot is right of target -> move LEFT
+    - If the robot is above the target  -> move DOWN
+    - If the robot is below the target  -> move UP
+    - If on the same row and left of target  -> move RIGHT
+    - If on the same row and right of target -> move LEFT
 
     Action indices follow the RobotAction enum in warehouse_robot.py:
         LEFT = 0, DOWN = 1, RIGHT = 2, UP = 3
     """
 
     def select_action(self, observation) -> int:
-        # Unpack observation. We accept either list, tuple, or numpy array.
-        robot_row, robot_col, target_row, target_col = observation
+        """
+        Select an action that greedily moves the robot closer to the target.
+        """
+        # Unpack the first four elements of the observation
+        robot_row, robot_col, target_row, target_col = observation[:4]
 
         candidate_actions = []
 
-        # Vertical preference: first try to align rows
+        # Vertical movement: align rows first
         if robot_row < target_row:
-            # Robot is above the target -> go DOWN (1)
+            # Robot is above the target -> move DOWN
             candidate_actions.append(1)
         elif robot_row > target_row:
-            # Robot is below the target -> go UP (3)
+            # Robot is below the target -> move UP
             candidate_actions.append(3)
 
-        # Horizontal adjustment: if on the same row, adjust columns
+        # Horizontal movement: align columns if on the same row
         if robot_row == target_row:
             if robot_col < target_col:
-                # Robot is left of target -> go RIGHT (2)
+                # Robot is left of the target -> move RIGHT
                 candidate_actions.append(2)
             elif robot_col > target_col:
-                # Robot is right of target -> go LEFT (0)
+                # Robot is right of the target -> move LEFT
                 candidate_actions.append(0)
 
-        # If the robot is already exactly on the target, or if for some reason
-        # no candidate action was selected, fall back to a random action.
+        # If no clear greedy action exists, fall back to a random action
         if not candidate_actions:
             return self.action_space.sample()
 
-        # If there are multiple good candidate actions, pick one at random
-        # among them to avoid always following the exact same path.
+        # Randomly choose among equally good candidate actions
         return random.choice(candidate_actions)
