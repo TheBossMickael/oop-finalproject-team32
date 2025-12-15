@@ -15,7 +15,7 @@ from agents import RandomAgent, GreedyAgent
 from trainer import Trainer
 
 
-# You can change these values if you want a different grid size.
+# Grid size
 DEFAULT_GRID_ROWS = 4
 DEFAULT_GRID_COLS = 5
 MAX_STEPS_PER_EPISODE = 50
@@ -40,7 +40,7 @@ def run_with_agent(
     print(f"Agent: {agent_name}")
     print("=" * 60)
 
-    # -------- Training phase (no rendering) --------
+    #Training phase
     env = env_class(
         grid_rows=DEFAULT_GRID_ROWS,
         grid_cols=DEFAULT_GRID_COLS,
@@ -51,7 +51,7 @@ def run_with_agent(
 
     train_stats = trainer.train(num_episodes=num_train_episodes, render=False)
 
-    # -------- Evaluation phase (no rendering) --------
+    #Evaluation phase
     eval_env = env_class(
         grid_rows=DEFAULT_GRID_ROWS,
         grid_cols=DEFAULT_GRID_COLS,
