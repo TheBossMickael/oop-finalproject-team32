@@ -24,9 +24,8 @@ register(
 )
 
 
-# --------------------------------------------------
+
 # Basic Warehouse Robot Environment
-# --------------------------------------------------
 class WarehouseRobotEnv(gym.Env):
     """
     Simple Gym environment for a warehouse robot.
@@ -124,9 +123,7 @@ class WarehouseRobotEnv(gym.Env):
         self.warehouse_robot.render()
 
 
-# --------------------------------------------------
 # Advanced Warehouse Robot Environment
-# --------------------------------------------------
 class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
     """
     Advanced version of the warehouse environment.
@@ -195,7 +192,7 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
 
             self.obstacles.append(pos)
 
-        # ---- IMPORTANT: send advanced info to the renderer ----
+        # Send advanced info to the renderer 
         self.warehouse_robot.obstacles = self.obstacles
         self.warehouse_robot.battery = self.battery
 
@@ -237,7 +234,7 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
             reward = 1
             terminated = True
 
-        # ---- IMPORTANT: update renderer info every step ----
+        # Update renderer info every step
         self.warehouse_robot.obstacles = self.obstacles
         self.warehouse_robot.battery = self.battery
 
@@ -265,9 +262,8 @@ class AdvancedWarehouseRobotEnv(WarehouseRobotEnv):
 # --------------------------------------------------
 # Unit test
 # --------------------------------------------------
-if __name__ == "__main__":
-    # Change this line to test the advanced environment visually:
-    # env = gym.make("warehouse-robot-advanced-v1", render_mode="human")
+if __name__ == "__main__":    
+    
     env = gym.make("warehouse-robot-v0", render_mode="human")
 
     obs = env.reset()[0]
