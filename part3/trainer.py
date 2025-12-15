@@ -90,7 +90,7 @@ class Trainer:
         success = False
 
         while not done:
-            # Get action from agent (polymorphic call)
+            # Get action from agent 
             action = self.agent.select_action(obs)
 
             # Apply action to environment
@@ -167,7 +167,7 @@ class Trainer:
             "avg_steps": avg_steps,
         }
 
-        # Basic console summary (useful during the demo)
+        # Basic console summary
         print(f"[TRAIN] Episodes: {num_episodes}")
         print(f"[TRAIN] Success rate: {success_rate * 100:.2f}%")
         print(f"[TRAIN] Average reward: {avg_reward:.3f}")
